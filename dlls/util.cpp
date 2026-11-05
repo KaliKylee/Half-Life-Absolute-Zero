@@ -3769,6 +3769,8 @@ int CRestore::ReadField( void *pBaseData, TYPEDESCRIPTION *pFields, int fieldCou
 						}
 					break;
 					case FIELD_EVARS:
+						// Entrada (save) usa int de 4 bytes; a saida e um ponteiro (8 bytes em 64 bits). Ajusta o passo dos arrays.
+						pOutputData = (char *)pOutputData + j*(sizeof(entvars_t *) - gSizes[pTest->fieldType]);
 						entityIndex = *( int *)pInputData;
 						pent = EntityFromIndex( entityIndex );
 						if ( pent )
@@ -3777,6 +3779,8 @@ int CRestore::ReadField( void *pBaseData, TYPEDESCRIPTION *pFields, int fieldCou
 							*((entvars_t **)pOutputData) = NULL;
 					break;
 					case FIELD_CLASSPTR:
+						// Entrada (save) usa int de 4 bytes; a saida e um ponteiro (8 bytes em 64 bits). Ajusta o passo dos arrays.
+						pOutputData = (char *)pOutputData + j*(sizeof(CBaseEntity *) - gSizes[pTest->fieldType]);
 						entityIndex = *( int *)pInputData;
 						pent = EntityFromIndex( entityIndex );
 						if ( pent )
@@ -3785,6 +3789,8 @@ int CRestore::ReadField( void *pBaseData, TYPEDESCRIPTION *pFields, int fieldCou
 							*((CBaseEntity **)pOutputData) = NULL;
 					break;
 					case FIELD_EDICT:
+						// Entrada (save) usa int de 4 bytes; a saida e um ponteiro (8 bytes em 64 bits). Ajusta o passo dos arrays.
+						pOutputData = (char *)pOutputData + j*(sizeof(edict_t *) - gSizes[pTest->fieldType]);
 						entityIndex = *( int *)pInputData;
 						pent = EntityFromIndex( entityIndex );
 						*((edict_t **)pOutputData) = pent;
