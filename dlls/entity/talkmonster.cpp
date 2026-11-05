@@ -3373,34 +3373,31 @@ void CTalkMonster::FollowerUse( CBaseEntity *pActivator, CBaseEntity *pCaller, U
 
 // What a strange name for a method.
 CBasePlayer* CTalkMonster::nearestVisibleDeadPlayer(void){
-	CBasePlayer	*pReturn;
-	CBaseEntity	*pNextEnt;
-	float		flNearest;
-	float		flDist;
+	CBasePlayer	*pReturn = NULL;
+	float		flNearest = 800;
 
-	flNearest = 800;
-	pNextEnt = m_pLink;
-	pReturn = NULL;
-
-	while ( pNextEnt != NULL ){
-		// Really dead only.
-		if(pNextEnt->IsPlayer() && !pNextEnt->IsAlive()){
-			CBasePlayer* daPlayer = static_cast<CBasePlayer*>(pNextEnt);
-			if(!daPlayer->recentlyGibbed && daPlayer->recoveryIndex == 3  ){ //&& !daPlayer->deadRespected_Kneeler 
-				if(FVisible(daPlayer->pev->origin + Vector(0,0,20))){
-					// line of sight, whether I'm facing yet or not?  Accept this
-					Vector pointDelta = daPlayer->pev->origin - this->pev->origin;
-					float theDist = DistanceFromDelta(pointDelta);
-					// close enough or closest than another dead player(?)?  go ahead
-					if(theDist < flNearest){
-						flNearest = theDist;
-						pReturn = daPlayer;
-					}
+	// Antes isto percorria a lista m_pLink (montada pelo Look() no frame anterior). Essa lista guarda
+	// ponteiros que ficam invalidos quando uma entidade e removida, e esta funcao roda no INICIO do
+	// MonsterThink, antes do Look() deste frame: em Android o objeto ja liberado causava crash.
+	// So jogadores interessam aqui, entao basta olhar os jogadores diretamente.
+	for(int i = 1; i <= gpGlobals->maxClients; i++){
+		CBaseEntity* pNextEnt = UTIL_PlayerByIndex(i);
+		if(pNextEnt == NULL || !pNextEnt->IsPlayer() || pNextEnt->IsAlive()){
+			continue;  // so jogadores realmente mortos
+		}
+		CBasePlayer* daPlayer = static_cast<CBasePlayer*>(pNextEnt);
+		if(!daPlayer->recentlyGibbed && daPlayer->recoveryIndex == 3  ){ //&& !daPlayer->deadRespected_Kneeler 
+			if(FVisible(daPlayer->pev->origin + Vector(0,0,20))){
+				// line of sight, whether I'm facing yet or not?  Accept this
+				Vector pointDelta = daPlayer->pev->origin - this->pev->origin;
+				float theDist = DistanceFromDelta(pointDelta);
+				// close enough or closest than another dead player(?)?  go ahead
+				if(theDist < flNearest){
+					flNearest = theDist;
+					pReturn = daPlayer;
 				}
 			}
-		}// isplayer and dead checks
-
-		pNextEnt = pNextEnt->m_pLink;
+		}
 	}
 
 	return pReturn;
