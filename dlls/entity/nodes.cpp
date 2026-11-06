@@ -3073,6 +3073,15 @@ int CGraph::FLoadGraph(char* szMapName)
 		m_pRouteInfo = NULL;
 		m_pHashLinks = NULL;
 
+		// Sanidade: arquivo de outra arquitetura/versao gera contadores absurdos. Sem isso o memcpy abaixo
+		// le alem do fim do arquivo (crash).
+		if (m_cNodes < 0 || m_cNodes > 100000 || m_cLinks < 0 || m_cLinks > 4000000 ||
+			m_nRouteInfo < 0 || m_nRouteInfo > 400000000 || m_nHashLinks < 0 || m_nHashLinks > 4000000)
+		{
+			ALERT(at_aiconsole, "**ERROR** Graph file has invalid sizes (different architecture?)\n");
+			goto ShortFile;
+		}
+
 
 		// Malloc for the nodes
 		//
@@ -3190,6 +3199,8 @@ int CGraph::FLoadGraph(char* szMapName)
 ShortFile:
 NoMemory:
 	FREE_FILE(aMemFile);
+	// Descarta o que foi copiado do arquivo (contadores e ponteiros invalidos) para o grafo ser refeito do zero.
+	InitGraph();
 	return FALSE;
 }
 

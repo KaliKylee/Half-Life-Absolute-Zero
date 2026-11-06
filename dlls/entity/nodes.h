@@ -58,7 +58,9 @@ extern BOOL map_anyAirNodes;
 
 
 //MODDD - moved up here because this looks pretty important.
-#define GRAPH_VERSION	(int)16// !!!increment this whever graph/node/link classes change, to obsolesce older disk files.
+// Os .nod guardam structs com ponteiros: em 64 bits o layout e outro, entao a versao inclui o tamanho do ponteiro
+// (arquivos gerados em 32 bits, p.ex. os do PC, sao recusados e o grafo e refeito).
+#define GRAPH_VERSION	(int)(16 + (sizeof(void*) == 8 ? 100 : 0))// !!!increment this whever graph/node/link classes change, to obsolesce older disk files.
 
 
 
