@@ -62,6 +62,7 @@ set(AZ_COMMON_DEFS NO_VGUI AZ_ANDROID _LINUX LINUX POSIX CLIENT_WEAPONS)
 set(AZ_COMMON_FLAGS
     "SHELL:-include ${CMAKE_SOURCE_DIR}/android/android_compat.h"
     -fno-strict-aliasing
+    -fsigned-char               # no ARM/Android char NAO tem sinal; o codigo (tabelas de rota, etc.) foi escrito para char COM sinal
     -w                          # codigo de 2000-2005: silencia warnings para o log ficar legivel
 )
 set(AZ_CXX_FLAGS
